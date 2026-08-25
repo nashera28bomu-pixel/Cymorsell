@@ -1,0 +1,82 @@
+name: Extract ZIP
+
+# Trigger this manually from GitHub's mobile app or web UI:
+# Repo -> Actions tab -> "Extract ZIP" -> Run workflow
+on:
+  workflow_dispatch:
+    inputs:
+      zip_path:
+        description: 'Path to the zip file in the repo (as uploaded)'
+        required: true
+        default: 'cymor-sell.zip'
+      target_dir:
+        description: 'Where to extract it to ("." = repo root)'
+        required: true
+        default: '.'
+      flatten_single_folder:
+        description: 'If the zip contains one top-level folder, move its contents up to target_dir'
+        type: boolean
+        required: true
+        default: true
+      delete_zip_after:
+        description: 'Delete the zip file from the repo after extracting'
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Verify zip exists
+        run: |
+          if [ ! -f "${{ github.event.inputs.zip_path }}" ]; then
+            echo "::error::Could not find '${{ github.event.inputs.zip_path }}' in the repo. Upload it first (GitHub app -> repo -> Add file -> Upload files), then re-run this workflow with the correct path."
+            exit 1
+          fi
+          echo "Found $(du -h "${{ github.event.inputs.zip_path }}" | cut -f1) zip file."
+
+      - name: Extract
+        run: |
+          mkdir -p "${{ github.event.inputs.target_dir }}"
+          unzip -o "${{ github.event.inputs.zip_path }}" -d "${{ github.event.inputs.target_dir }}"
+
+      - name: Flatten single top-level folder (optional)
+        if: ${{ github.event.inputs.flatten_single_folder == 'true' }}
+        run: |
+          cd "${{ github.event.inputs.target_dir }}"
+          # Count top-level entries excluding the zip itself and .git
+          entries=$(find . -mindepth 1 -maxdepth 1 -not -name ".git" -not -name "$(basename '${{ github.event.inputs.zip_path }}')")
+          count=$(echo "$entries" | grep -c . || true)
+          single_dir=$(echo "$entries" | head -n1)
+
+          if [ "$count" = "1" ] && [ -d "$single_dir" ]; then
+            echo "Flattening '$single_dir' into '${{ github.event.inputs.target_dir }}'"
+            shopt -s dotglob
+            mv "$single_dir"/* .
+            rmdir "$single_dir"
+          else
+            echo "Skipping flatten: zip did not contain exactly one top-level folder."
+          fi
+
+      - name: Remove zip file (optional)
+        if: ${{ github.event.inputs.delete_zip_after == 'true' }}
+        run: rm -f "${{ github.event.inputs.zip_path }}"
+
+      - name: Commit and push extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing changed — extraction produced no diff."
+          else
+            git commit -m "Extract $(basename '${{ github.event.inputs.zip_path }}') via GitHub Actions"
+            git push
+          fi
