@@ -12,11 +12,11 @@ const SystemSettings = require('../models/SystemSettings');
 const ActivityLog = require('../models/ActivityLog');
 const ai_requests = require('../utils/aiRequestCounter');
 
-const ADMIN_COOKIE_OPTS = {
+const COOKIE_OPTS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  maxAge: 12 * 60 * 60 * 1000,
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
 // Server-side-only admin login. Identity is NEVER derived from a Telegram username.
