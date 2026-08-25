@@ -1,0 +1,39 @@
+# Optional Render Blueprint - or configure manually in the Render dashboard
+# (see README "Render deployment" section).
+services:
+  - type: web
+    name: cymor-sell-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: TELEGRAM_MAIN_BOT_TOKEN
+        sync: false
+      - key: ADMIN_TELEGRAM_ID
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_URL
+        sync: false
+      - key: LINK_TOKEN_SECRET
+        sync: false

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — Cymor Sell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/src/css/style.css" />
+<style>
+  body { background: var(--navy-950); }
+  .admin-login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .admin-card { max-width: 380px; width: 100%; background: #fff; }
+  .admin-shell { display: none; }
+  .admin-shell.active { display: block; background: var(--paper); min-height: 100vh; }
+  .admin-topbar { background: var(--navy-950); color: #fff; }
+  .admin-topbar .brand { color: #fff; }
+  .admin-topbar .topbar-inner { padding: 16px 24px; }
+  .admin-tabs { display: flex; gap: 4px; padding: 0 24px; background: var(--navy-900); overflow-x: auto; }
+  .admin-tabs button { padding: 12px 16px; background: none; border: none; color: #9aa4c0; font-weight: 600; font-size: 13.5px; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .admin-tabs button.active { color: #fff; border-bottom-color: var(--amber-500); }
+  .admin-page { display: none; padding: 26px 24px; max-width: 1100px; margin: 0 auto; }
+  .admin-page.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="admin-login-wrap" id="admin-login-view">
+  <div class="card admin-card">
+    <h2 style="margin-bottom:6px;">CYMOR SELL ADMIN</h2>
+    <p class="muted" style="font-size:13.5px;margin-bottom:20px;">Server-side administrator access only.</p>
+    <form id="admin-login-form">
+      <div class="field"><label>Admin Email</label><input type="email" name="email" required /></div>
+      <div class="field"><label>Password</label><input type="password" name="password" required /></div>
+      <button class="btn btn-primary btn-block" type="submit">Log in</button>
+    </form>
+  </div>
+</div>
+
+<div class="admin-shell" id="admin-shell">
+  <header class="topbar admin-topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="dot"></span> Cymor Sell Admin</div>
+      <button class="btn btn-ghost btn-sm" id="admin-logout" style="border-color:#2a3760;color:#fff;">Log out</button>
+    </div>
+  </header>
+  <div class="admin-tabs" id="admin-tabs">
+    <button class="active" data-admin-page="analytics">📊 Analytics</button>
+    <button data-admin-page="broadcast">📢 Broadcast</button>
+    <button data-admin-page="maintenance">🛠 Maintenance</button>
+    <button data-admin-page="logs">📝 Activity Logs</button>
+  </div>
+
+  <section class="admin-page active" id="admin-page-analytics">
+    <div class="section-head"><h2>Platform Analytics</h2></div>
+    <div class="grid-4" id="admin-stats"></div>
+    <p class="muted" style="margin-top:20px;font-size:13.5px;">Aggregate metrics only — individual business data (products, customers, payment details) is never shown here. Business data belongs to the business owner.</p>
+  </section>
+
+  <section class="admin-page" id="admin-page-broadcast">
+    <div class="section-head"><h2>Broadcast</h2></div>
+    <div class="card" style="max-width:520px;margin-bottom:20px;">
+      <form id="broadcast-form">
+        <div class="field"><label>Message</label><textarea name="message" rows="3" required></textarea></div>
+        <div class="field">
+          <label>Target</label>
+          <select name="target">
+            <option value="all">All platform users</option>
+            <option value="owners">Business owners</option>
+            <option value="active_owners">Active business owners</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Send Broadcast</button>
+      </form>
+    </div>
+    <h3 style="margin-bottom:10px;">History</h3>
+    <div class="card table-wrap"><div id="broadcast-history"></div></div>
+  </section>
+
+  <section class="admin-page" id="admin-page-maintenance">
+    <div class="section-head"><h2>Maintenance Mode</h2></div>
+    <div class="card" style="max-width:520px;">
+      <form id="maintenance-form">
+        <div class="field">
+          <label><input type="checkbox" name="maintenanceMode" style="width:auto;display:inline-block;margin-right:8px;" /> Enable maintenance mode</label>
+        </div>
+        <div class="field"><label>Maintenance Message</label><textarea name="maintenanceMessage" rows="3"></textarea></div>
+        <button class="btn btn-primary" type="submit">Save</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="admin-page" id="admin-page-logs">
+    <div class="section-head"><h2>Activity Logs</h2></div>
+    <div class="card table-wrap"><div id="logs-table"></div></div>
+  </section>
+</div>
+
+<script src="/env-config.js"></script>
+<script src="/src/js/lib/api.js"></script>
+<script src="/src/js/lib/toast.js"></script>
+<script src="/src/js/pages/admin.js"></script>
+</body>
+</html>
